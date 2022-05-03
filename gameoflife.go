@@ -3,9 +3,8 @@ package main
 import "fmt"
 import "time"
 import "math/rand"
-import "github.com/fogleman/gg"
 
-func main(){
+func main() {
 	gol := New(Settings{
 		x:     10,
 		y:     10,
@@ -66,10 +65,10 @@ func (gol GameOfLife) Start() error {
 
 func (gol GameOfLife) Print() {
 	for i := range gol.board {
-		for j:= range gol.board[i]{
-			if gol.board[i][j]{
+		for j := range gol.board[i] {
+			if gol.board[i][j] {
 				fmt.Print("1 ")
-			} else{
+			} else {
 				fmt.Print("0 ")
 			}
 		}
@@ -84,7 +83,7 @@ func (gol *GameOfLife) NextState() {
 			activeNeighbors := gol.GetActiveNeighbors(i, j)
 			if gol.board[i][j] {
 				newStateBoard[i][j] = activeNeighbors == 2 || activeNeighbors == 3
-			} else{
+			} else {
 				newStateBoard[i][j] = activeNeighbors == 3
 			}
 		}
@@ -103,7 +102,7 @@ func (gol GameOfLife) GetActiveNeighbors(i int, j int) int {
 				y+j < 0 || y+j >= gol.settings.y {
 				continue
 			}
-			if gol.board[x+i][y+j]{
+			if gol.board[x+i][y+j] {
 				activeNeighbors++
 			}
 		}
