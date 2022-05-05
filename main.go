@@ -7,21 +7,24 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/pkritiotis/game-of-life/gameoflife"
 	"golang.org/x/image/colornames"
+	"image/color"
 	"math/rand"
 	"time"
 )
 
 var (
-	size       *int
-	windowSize *float64
-	frameRate  *time.Duration
+	cellSize     *int
+	windowWidth  *float64
+	windowHeight *float64
+	frameRate    *time.Duration
 )
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
-	size = flag.Int("size", 20, "The size of each cell")
-	windowSize = flag.Float64("windowSize", 800, "The pixel size of one side of the grid")
-	frameRate = flag.Duration("frameRate", 200*time.Millisecond, "The framerate in milliseconds")
+	cellSize = flag.Int("cellSize", 30, "The cellSize of each cell")
+	windowWidth = flag.Float64("width", 900, "The pixel size of the width grid")
+	windowHeight = flag.Float64("height", 900, "The pixel size of the height of the grid")
+	frameRate = flag.Duration("frameRate", 300*time.Millisecond, "The framerate in milliseconds")
 	flag.Parse()
 }
 
@@ -29,7 +32,7 @@ func run() {
 
 	cfg := pixelgl.WindowConfig{
 		Title:  "Game of Life",
-		Bounds: pixel.R(0, 0, *windowSize, *windowSize),
+		Bounds: pixel.R(0, 0, *windowWidth, *windowHeight),
 		VSync:  true,
 	}
 	win, err := pixelgl.NewWindow(cfg)
@@ -39,17 +42,18 @@ func run() {
 	win.Clear(colornames.White)
 
 	// since the game board is square, rows and cols will be the same
-	rows := int(*windowSize) / *size
+	rows := int(*windowWidth) / *cellSize
+	columns := int(*windowHeight) / *cellSize
 
 	gridDraw := imdraw.New(nil)
-	game := gameoflife.New(rows, rows)
+	game := gameoflife.New(rows, columns)
 	tick := time.Tick(*frameRate)
 	for !win.Closed() {
 		// game loop
 		select {
 		case <-tick:
 			gridDraw.Clear()
-			printBoard(game.Board, gridDraw, *size)
+			printBoard(game.Grid, gridDraw, *cellSize)
 			gridDraw.Draw(win)
 			game.Next()
 		}
@@ -57,30 +61,33 @@ func run() {
 	}
 }
 
-func printBoard(board [][]gameoflife.CellState, imd *imdraw.IMDraw, cellSize int) {
+func printBoard(board [][]gameoflife.Cell, imd *imdraw.IMDraw, cellSize int) {
 	for i := range board {
 		for j := range board[i] {
-			switch board[i][j] {
-			case gameoflife.Dead_WillRemainDead:
-				imd.Color = colornames.White
+			switch board[i][j].State {
+			case gameoflife.Still:
+				if !board[i][j].IsAlive {
+					imd.Color = colornames.Whitesmoke
+				} else {
+					imd.Color = colornames.Forestgreen
+				}
 				break
-			case gameoflife.Dead_WillBeBorn:
-				imd.Color = colornames.Green
+			case gameoflife.Reproduction:
+				imd.Color = color.RGBA{0xdd, 0xff, 0xdd, 0xff}
 				break
-			case gameoflife.Alive_UnderPopulated:
-				imd.Color = colornames.Yellow
+			case gameoflife.UnderPopulated:
+				imd.Color = colornames.Orangered
 				break
-			case gameoflife.Alive_OverPopulated:
-				imd.Color = colornames.Red
+			case gameoflife.OverPopulated:
+				imd.Color = colornames.Darkorange
 				break
-			case gameoflife.Alive_WillSurvive:
-				imd.Color = colornames.Blue
 			}
 
 			imd.Push(
-				pixel.V(float64(i*cellSize), float64(j*cellSize)),
-				pixel.V(float64(i*cellSize+cellSize), float64(j*cellSize+cellSize)),
+				pixel.V(float64(i*cellSize)+2, float64(j*cellSize+2)),
+				pixel.V(float64(i*cellSize+cellSize)-2, float64(j*cellSize+cellSize-2)),
 			)
+			//imd.Circle(float64(cellSize/2), 0)
 			imd.Rectangle(0)
 		}
 	}

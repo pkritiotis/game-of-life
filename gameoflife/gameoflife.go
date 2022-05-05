@@ -1,148 +1,133 @@
 package gameoflife
 
 import (
+	"math/rand"
 	"time"
 )
-import "math/rand"
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+//CellState represents the state of the cell
 type CellState int
 
 const (
-	Dead_WillRemainDead CellState = iota
-	Dead_WillBeBorn
-	Alive_WillSurvive
-	Alive_OverPopulated
-	Alive_UnderPopulated
+	//Unknown represents an unitialized state
+	Unknown CellState = iota
+	//Still represents the state of the Cell that will remain in its current health state (dead->dead or alive->alive)
+	Still
+	//Reproduction represents the state of a dead Cell that will become alive in the next step
+	Reproduction
+	//OverPopulated represents the state of a live Cell that will die in the next step because of overpopulation
+	OverPopulated
+	//UnderPopulated represents the state of a live Cell that will die in the next step because of underpopulation
+	UnderPopulated
 )
 
+//Cell encapsulates the liveness and state of a cell
+type Cell struct {
+	IsAlive bool
+	State   CellState
+}
+
+//GaemOfLife contains the grid of the game of life
 type GameOfLife struct {
-	Board   [][]CellState
+	Grid    [][]Cell
 	rows    int
 	columns int
 }
 
+//New GameOfLife constructor
 func New(rows, columns int) GameOfLife {
-	board := getBoardWithCellStates(newRandomBoard(rows, columns))
-
-	return GameOfLife{
-		Board:   board,
+	gol := GameOfLife{
 		rows:    rows,
 		columns: columns,
 	}
+	gol.Grid = gol.populateCellStates(newRandomGrid(rows, columns))
+	return gol
 }
 
-func getBoardWithCellStates(board [][]bool) [][]CellState {
-	newStateBoard := newCellStateBoard(len(board), len(board[0]))
-	for i := range board {
-		for j := range board[i] {
-			activeNeighbors := getActiveNeighborsBool(i, j, board)
-			if board[i][j] {
+func newRandomGrid(rows, columns int) [][]Cell {
+	grid := make([][]Cell, rows)
+	for i := range grid {
+		grid[i] = make([]Cell, columns)
+		for j := range grid[i] {
+			grid[i][j] = Cell{
+				IsAlive: rand.Intn(2) == 1,
+				State:   Unknown,
+			}
+		}
+	}
+	return grid
+}
+
+func (gol GameOfLife) populateCellStates(grid [][]Cell) [][]Cell {
+	populatedGrid := make([][]Cell, len(grid))
+	for i := range grid {
+		populatedGrid[i] = make([]Cell, len(grid[i]))
+		for j := range grid[i] {
+			activeNeighbors := gol.getActiveNeighbors(i, j, grid)
+			cell := grid[i][j]
+			if cell.IsAlive {
 				if activeNeighbors == 2 || activeNeighbors == 3 {
-					newStateBoard[i][j] = Alive_WillSurvive
-					continue
+					cell.State = Still
+				} else if activeNeighbors > 3 {
+					cell.State = OverPopulated
+				} else {
+					cell.State = UnderPopulated
 				}
-				if activeNeighbors > 3 {
-					newStateBoard[i][j] = Alive_OverPopulated
-					continue
-				}
-				newStateBoard[i][j] = Alive_UnderPopulated
 			} else {
 				if activeNeighbors == 3 {
-					newStateBoard[i][j] = Dead_WillBeBorn
-					continue
+					cell.State = Reproduction
+				} else {
+					cell.State = Still
 				}
-				newStateBoard[i][j] = Dead_WillRemainDead
 			}
+			populatedGrid[i][j] = cell
 		}
 	}
-	return newStateBoard
+	return populatedGrid
 }
 
-func randBool() bool {
-	return rand.Intn(2) == 1
-}
-
-func newRandomBoard(rows, columns int) [][]bool {
-	board := make([][]bool, rows)
-	for i := range board {
-		board[i] = make([]bool, columns)
-		for j := range board[i] {
-			board[i][j] = randBool()
-		}
+func newGrid(rows, columns int) [][]Cell {
+	grid := make([][]Cell, rows)
+	for i := range grid {
+		grid[i] = make([]Cell, columns)
 	}
-	return board
+	return grid
 }
 
-func newCellStateBoard(rows, columns int) [][]CellState {
-	board := make([][]CellState, rows)
-	for i := range board {
-		board[i] = make([]CellState, columns)
-	}
-	return board
-}
-
-func newBoard(rows, columns int) [][]bool {
-	board := make([][]bool, rows)
-	for i := range board {
-		board[i] = make([]bool, columns)
-	}
-	return board
-}
-
+//Next advances the GameOfLife to the next step/state
 func (gol *GameOfLife) Next() {
-	newStateBoard := newBoard(gol.rows, gol.columns)
-	for i := range gol.Board {
-		for j := range gol.Board[i] {
-			activeNeighbors := getActiveNeighbors(i, j, gol.Board)
-			if gol.Board[i][j] > 1 {
-				newStateBoard[i][j] = activeNeighbors == 2 || activeNeighbors == 3
+	newStateGrid := newGrid(gol.rows, gol.columns)
+	for i := range gol.Grid {
+		for j := range gol.Grid[i] {
+			activeNeighbors := gol.getActiveNeighbors(i, j, gol.Grid)
+			if gol.Grid[i][j].IsAlive {
+				newStateGrid[i][j].IsAlive = activeNeighbors == 2 || activeNeighbors == 3
 			} else {
-				newStateBoard[i][j] = activeNeighbors == 3
+				newStateGrid[i][j].IsAlive = activeNeighbors == 3
 			}
+			newStateGrid[i][j].State = Unknown
 		}
 	}
-	gol.Board = getBoardWithCellStates(newStateBoard)
+	gol.Grid = gol.populateCellStates(newStateGrid)
+
 }
 
-func getActiveNeighborsBool(i int, j int, board [][]bool) int {
+func (gol GameOfLife) getActiveNeighbors(i int, j int, grid [][]Cell) int {
 	activeNeighbors := 0
 	for x := -1; x <= 1; x++ {
-		rows := len(board)
 		for y := -1; y <= 1; y++ {
 			if x == 0 && y == 0 {
 				continue
 			}
-			columns := len(board[0])
-			if x+i < 0 || x+i >= rows ||
-				y+j < 0 || y+j >= columns {
+			if x+i < 0 || x+i >= gol.rows ||
+				y+j < 0 || y+j >= gol.columns {
 				continue
 			}
-			if board[x+i][y+j] {
-				activeNeighbors++
-			}
-		}
-	}
-	return activeNeighbors
-}
-
-func getActiveNeighbors(i int, j int, board [][]CellState) int {
-	activeNeighbors := 0
-	for x := -1; x <= 1; x++ {
-		rows := len(board)
-		for y := -1; y <= 1; y++ {
-			if x == 0 && y == 0 {
-				continue
-			}
-			columns := len(board[0])
-			if x+i < 0 || x+i >= rows ||
-				y+j < 0 || y+j >= columns {
-				continue
-			}
-			if board[x+i][y+j] > 1 {
+			if grid[x+i][y+j].IsAlive {
 				activeNeighbors++
 			}
 		}
