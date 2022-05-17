@@ -1,6 +1,6 @@
 # Game of life
 
-This is a sample implementation of the game of life in `go` using the `faiface/pixel` game library
+This is a sample implementation of the game of life in go using `faiface/pixel` 2D game library (https://github.com/faiface/pixel).
 
 ![](./docs/sample.gif)
 
