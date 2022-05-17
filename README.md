@@ -6,11 +6,11 @@ This is a sample implementation of the game of life in `go` using the `faiface/p
 
 Features:
 - Graphical User Interface with different colors representing the cell state and condition
-  - Grey: Dead - the conditions don't allow a reproduction of a new cell in the next state
-  - Light Green: Dead - a new cell will be reproduced in the next state
-  - Green: Live Cell - not in danger
-  - Orange: Live Cell - Overpopulated - will die in the next state
-  - Red: Live Cell - Underpopulated - will die in the next state
+  - ![#f5f5f5ff](http://via.placeholder.com/15/f5f5f5ff/000000?text=+): Dead - the conditions don't allow a reproduction of a new cell in the next state
+  - ![#bddfbdff](http://via.placeholder.com/15/bddfbddf/000000?text=+): Dead - a new cell will be reproduced in the next state
+  - ![#228b22ff](http://via.placeholder.com/15/228b22ff/000000?text=+): Live Cell - not in danger
+  - ![#ff4500ff](http://via.placeholder.com/15/ff4500ff/000000?text=+): Live Cell - Overpopulated - will die in the next state
+  - ![#ff8c00ff](http://via.placeholder.com/15/ff8c00ff/000000?text=+): Live Cell - Underpopulated - will die in the next state
 - Customizable width, height, cell size, and framerate (see Usage)
 - A new random board is populated at every run
 
