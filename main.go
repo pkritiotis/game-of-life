@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
@@ -9,6 +10,7 @@ import (
 	"golang.org/x/image/colornames"
 	"image/color"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -21,15 +23,14 @@ var (
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
-	cellSize = flag.Int("cellSize", 30, "The cellSize of each cell")
-	windowWidth = flag.Float64("width", 900, "The pixel size of the width grid")
-	windowHeight = flag.Float64("height", 900, "The pixel size of the height of the grid")
+	cellSize = flag.Int("cellSize", 30, "The pixel size of each cell")
+	windowWidth = flag.Float64("width", 600, "The pixel size of the width of the grid")
+	windowHeight = flag.Float64("height", 500, "The pixel size of the height of the grid")
 	frameRate = flag.Duration("frameRate", 300*time.Millisecond, "The framerate in milliseconds")
 	flag.Parse()
 }
 
 func run() {
-
 	cfg := pixelgl.WindowConfig{
 		Title:  "Game of Life",
 		Bounds: pixel.R(0, 0, *windowWidth, *windowHeight),
@@ -37,11 +38,11 @@ func run() {
 	}
 	win, err := pixelgl.NewWindow(cfg)
 	if err != nil {
-		panic(err)
+		fmt.Printf("Could not create a new window: %v", err)
+		os.Exit(1)
 	}
 	win.Clear(colornames.White)
 
-	// since the game board is square, rows and cols will be the same
 	rows := int(*windowWidth) / *cellSize
 	columns := int(*windowHeight) / *cellSize
 
@@ -49,7 +50,6 @@ func run() {
 	game := gameoflife.New(rows, columns)
 	tick := time.Tick(*frameRate)
 	for !win.Closed() {
-		// game loop
 		select {
 		case <-tick:
 			gridDraw.Clear()
@@ -73,7 +73,7 @@ func printBoard(board [][]gameoflife.Cell, imd *imdraw.IMDraw, cellSize int) {
 				}
 				break
 			case gameoflife.Reproduction:
-				imd.Color = color.RGBA{0xdd, 0xff, 0xdd, 0xff}
+				imd.Color = color.RGBA{0xbd, 0xdf, 0xbd, 0xdf}
 				break
 			case gameoflife.UnderPopulated:
 				imd.Color = colornames.Orangered

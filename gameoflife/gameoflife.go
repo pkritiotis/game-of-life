@@ -13,7 +13,7 @@ func init() {
 type CellState int
 
 const (
-	//Unknown represents an unitialized state
+	//Unknown represents an uninitialized state
 	Unknown CellState = iota
 	//Still represents the state of the Cell that will remain in its current health state (dead->dead or alive->alive)
 	Still
@@ -133,8 +133,4 @@ func (gol GameOfLife) getActiveNeighbors(i int, j int, grid [][]Cell) int {
 		}
 	}
 	return activeNeighbors
-}
-
-func (gol GameOfLife) IsDead() bool {
-	return false
 }
