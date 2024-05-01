@@ -3,15 +3,16 @@ package main
 import (
 	"flag"
 	"fmt"
+	"image/color"
+	"math/rand"
+	"os"
+	"time"
+
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/pkritiotis/game-of-life/gameoflife"
 	"golang.org/x/image/colornames"
-	"image/color"
-	"math/rand"
-	"os"
-	"time"
 )
 
 var (
@@ -87,7 +88,7 @@ func printBoard(board [][]gameoflife.Cell, imd *imdraw.IMDraw, cellSize int) {
 				pixel.V(float64(i*cellSize)+2, float64(j*cellSize+2)),
 				pixel.V(float64(i*cellSize+cellSize)-2, float64(j*cellSize+cellSize-2)),
 			)
-			//imd.Circle(float64(cellSize/2), 0)
+			// imd.Circle(float64(cellSize/2), 0)
 			imd.Rectangle(0)
 		}
 	}

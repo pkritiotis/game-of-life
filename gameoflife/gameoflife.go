@@ -9,36 +9,36 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-//CellState represents the state of the cell
+// CellState represents the state of the cell
 type CellState int
 
 const (
-	//Unknown represents an uninitialized state
+	// Unknown represents an uninitialized state
 	Unknown CellState = iota
-	//Still represents the state of the Cell that will remain in its current health state (dead->dead or alive->alive)
+	// Still represents the state of the Cell that will remain in its current health state (dead->dead or alive->alive)
 	Still
-	//Reproduction represents the state of a dead Cell that will become alive in the next step
+	// Reproduction represents the state of a dead Cell that will become alive in the next step
 	Reproduction
-	//OverPopulated represents the state of a live Cell that will die in the next step because of overpopulation
+	// OverPopulated represents the state of a live Cell that will die in the next step because of overpopulation
 	OverPopulated
-	//UnderPopulated represents the state of a live Cell that will die in the next step because of underpopulation
+	// UnderPopulated represents the state of a live Cell that will die in the next step because of underpopulation
 	UnderPopulated
 )
 
-//Cell encapsulates the liveness and state of a cell
+// Cell encapsulates the liveness and state of a cell
 type Cell struct {
 	IsAlive bool
 	State   CellState
 }
 
-//GaemOfLife contains the grid of the game of life
+// GaemOfLife contains the grid of the game of life
 type GameOfLife struct {
 	Grid    [][]Cell
 	rows    int
 	columns int
 }
 
-//New GameOfLife constructor
+// New GameOfLife constructor
 func New(rows, columns int) GameOfLife {
 	gol := GameOfLife{
 		rows:    rows,
@@ -98,7 +98,7 @@ func newGrid(rows, columns int) [][]Cell {
 	return grid
 }
 
-//Next advances the GameOfLife to the next step/state
+// Next advances the GameOfLife to the next step/state
 func (gol *GameOfLife) Next() {
 	newStateGrid := newGrid(gol.rows, gol.columns)
 	for i := range gol.Grid {
@@ -113,7 +113,6 @@ func (gol *GameOfLife) Next() {
 		}
 	}
 	gol.Grid = gol.populateCellStates(newStateGrid)
-
 }
 
 func (gol GameOfLife) getActiveNeighbors(i int, j int, grid [][]Cell) int {
