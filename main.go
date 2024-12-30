@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"image/color"
-	"math/rand"
 	"os"
 	"time"
 
@@ -23,7 +22,6 @@ var (
 )
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
 	cellSize = flag.Int("cellSize", 30, "The pixel size of each cell")
 	windowWidth = flag.Float64("width", 600, "The pixel size of the width of the grid")
 	windowHeight = flag.Float64("height", 500, "The pixel size of the height of the grid")
